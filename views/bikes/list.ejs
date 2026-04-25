@@ -1,0 +1,132 @@
+<%- include('../partials/header') %>
+
+<div class="page-header">
+  <div class="container">
+    <h1>Browse Bikes</h1>
+    <p>Find your perfect ride from our collection</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="bikes-layout">
+      <!-- ── Filters Sidebar ─────────────────────────────────────────────── -->
+      <aside class="filters" id="filterPanel">
+        <div class="filters__header">
+          <h3><i class="fas fa-filter"></i> Filters</h3>
+          <a href="/bikes" class="filters__clear">Clear All</a>
+        </div>
+        <form id="filterForm" action="/bikes" method="GET">
+          <!-- Search -->
+          <div class="filter-group">
+            <label>Search</label>
+            <div class="input-icon">
+              <i class="fas fa-search"></i>
+              <input type="text" name="q" value="<%= query.q || '' %>" placeholder="Search bikes…"/>
+            </div>
+          </div>
+          <!-- City -->
+          <div class="filter-group">
+            <label>City</label>
+            <select name="city">
+              <option value="">All Cities</option>
+              <% cities.forEach(c => { %>
+                <option value="<%= c %>" <%= query.city === c ? 'selected' : '' %>><%= c %></option>
+              <% }) %>
+            </select>
+          </div>
+          <!-- Type -->
+          <div class="filter-group">
+            <label>Bike Type</label>
+            <select name="type">
+              <option value="">All Types</option>
+              <% ['Mountain','Road','City','Electric','Hybrid','BMX','Kids'].forEach(t => { %>
+                <option value="<%= t %>" <%= query.type === t ? 'selected' : '' %>><%= t %></option>
+              <% }) %>
+            </select>
+          </div>
+          <!-- Price Range -->
+          <div class="filter-group">
+            <label>Price / Day (₹)</label>
+            <div class="range-row">
+              <input type="number" name="minPrice" placeholder="Min" value="<%= query.minPrice || '' %>" min="0"/>
+              <span>–</span>
+              <input type="number" name="maxPrice" placeholder="Max" value="<%= query.maxPrice || '' %>" min="0"/>
+            </div>
+          </div>
+          <!-- Availability -->
+          <div class="filter-group">
+            <label>Availability</label>
+            <select name="available">
+              <option value="">All</option>
+              <option value="true" <%= query.available === 'true' ? 'selected' : '' %>>Available Now</option>
+            </select>
+          </div>
+          <!-- Sort -->
+          <div class="filter-group">
+            <label>Sort By</label>
+            <select name="sort">
+              <option value="">Newest</option>
+              <option value="price_asc" <%= query.sort === 'price_asc' ? 'selected' : '' %>>Price: Low to High</option>
+              <option value="price_desc" <%= query.sort === 'price_desc' ? 'selected' : '' %>>Price: High to Low</option>
+              <option value="rating" <%= query.sort === 'rating' ? 'selected' : '' %>>Top Rated</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn--primary btn--full">Apply Filters</button>
+        </form>
+      </aside>
+
+      <!-- ── Bikes Grid ──────────────────────────────────────────────────── -->
+      <main class="bikes-main">
+        <div class="bikes-toolbar">
+          <p class="bikes-count"><strong><%= bikes.length %></strong> bikes found</p>
+          <button class="btn btn--outline btn--sm" id="filterToggle"><i class="fas fa-filter"></i> Filters</button>
+        </div>
+
+        <% if (bikes.length === 0) { %>
+          <div class="empty-state">
+            <i class="fas fa-bicycle"></i>
+            <h3>No bikes found</h3>
+            <p>Try adjusting your filters</p>
+            <a href="/bikes" class="btn btn--primary">Clear Filters</a>
+          </div>
+        <% } else { %>
+        <div class="bikes-grid bikes-grid--main">
+          <% bikes.forEach(bike => { %>
+          <div class="bike-card">
+            <div class="bike-card__img">
+              <img src="<%= bike.images[0] || '/images/bike-default.jpg' %>" alt="<%= bike.name %>" loading="lazy"/>
+              <span class="bike-card__badge"><%= bike.type %></span>
+              <% if (!bike.availability) { %><span class="bike-card__badge bike-card__badge--unavailable">Booked</span><% } %>
+            </div>
+            <div class="bike-card__body">
+              <h3 class="bike-card__name"><%= bike.name %></h3>
+              <p class="bike-card__brand"><%= bike.brand %></p>
+              <p class="bike-card__city"><i class="fas fa-map-marker-alt"></i> <%= bike.city %> · <%= bike.location %></p>
+              <div class="bike-card__rating">
+                <% for(let i=1;i<=5;i++) { %><i class="fas fa-star <%= i <= Math.round(bike.avgRating) ? 'text--accent' : 'text--muted' %>"></i><% } %>
+                <span><%= bike.avgRating %> (<%= bike.reviews.length %> reviews)</span>
+              </div>
+              <div class="bike-card__price">
+                <span class="price--main">₹<%= bike.pricePerHour %>/hr</span>
+                <span class="price--day">₹<%= bike.pricePerDay %>/day</span>
+              </div>
+              <div class="bike-card__actions">
+                <a href="/bikes/<%= bike._id %>" class="btn btn--outline">Details</a>
+                <% if (bike.availability) { %>
+                  <a href="/booking/new/<%= bike._id %>" class="btn btn--primary">Book Now</a>
+                <% } else { %>
+                  <button class="btn btn--disabled" disabled>Unavailable</button>
+                <% } %>
+              </div>
+            </div>
+          </div>
+          <% }) %>
+        </div>
+        <% } %>
+      </main>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

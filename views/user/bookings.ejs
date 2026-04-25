@@ -1,0 +1,70 @@
+<%- include('../partials/header') %>
+
+<div class="page-header">
+  <div class="container">
+    <h1>My Bookings</h1>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="dashboard-layout">
+      <aside class="dash-sidebar">
+        <div class="dash-user">
+          <img src="/images/default-avatar.png" alt="" class="dash-user__avatar"/>
+          <div><strong><%= user.name %></strong><p><%= user.email %></p></div>
+        </div>
+        <nav class="dash-nav">
+          <a href="/user/dashboard" class="dash-nav__link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+          <a href="/user/bookings" class="dash-nav__link active"><i class="fas fa-calendar-check"></i> My Bookings</a>
+          <a href="/user/profile" class="dash-nav__link"><i class="fas fa-user-edit"></i> Profile</a>
+          <a href="/bikes" class="dash-nav__link"><i class="fas fa-bicycle"></i> Browse Bikes</a>
+          <a href="/auth/logout" class="dash-nav__link dash-nav__link--danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+      </aside>
+      <main class="dash-main">
+        <!-- Status Filter Tabs -->
+        <div class="filter-tabs">
+          <% ['all','pending','confirmed','active','completed','cancelled'].forEach(s => { %>
+            <a href="/user/bookings<%= s !== 'all' ? '?status='+s : '' %>"
+               class="filter-tab <%= status === s ? 'active' : '' %>"><%= s.charAt(0).toUpperCase()+s.slice(1) %></a>
+          <% }) %>
+        </div>
+
+        <% if (bookings.length === 0) { %>
+          <div class="empty-state">
+            <i class="fas fa-calendar-times"></i>
+            <h3>No bookings found</h3>
+            <a href="/bikes" class="btn btn--primary">Browse Bikes</a>
+          </div>
+        <% } else { %>
+        <div class="bookings-list">
+          <% bookings.forEach(b => { %>
+          <div class="booking-item">
+            <img src="<%= b.bike?.images?.[0] || '/images/bike-default.jpg' %>" alt="" class="booking-item__img"/>
+            <div class="booking-item__info">
+              <h4><%= b.bike?.name %> <span class="status-badge status-badge--<%= b.status %>"><%= b.status %></span></h4>
+              <p><i class="fas fa-map-marker-alt"></i> <%= b.bike?.city %></p>
+              <p><i class="fas fa-calendar"></i> <%= new Date(b.startDate).toLocaleDateString('en-IN') %> → <%= new Date(b.endDate).toLocaleDateString('en-IN') %></p>
+              <p><i class="fas fa-tag"></i> <%= b.bookingId %></p>
+            </div>
+            <div class="booking-item__right">
+              <strong class="text--accent">₹<%= b.totalAmount %></strong>
+              <p class="payment-status--<%= b.payment.status %>"><%= b.payment.status %></p>
+              <a href="/booking/<%= b._id %>" class="btn btn--outline btn--sm">Details</a>
+              <% if (!['completed','cancelled'].includes(b.status)) { %>
+                <form action="/booking/<%= b._id %>/cancel" method="POST" onsubmit="return confirm('Cancel?')">
+                  <button class="btn btn--danger btn--sm">Cancel</button>
+                </form>
+              <% } %>
+            </div>
+          </div>
+          <% }) %>
+        </div>
+        <% } %>
+      </main>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

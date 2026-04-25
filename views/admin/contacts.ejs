@@ -1,0 +1,53 @@
+<%- include('../partials/header') %>
+
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar__logo"><i class="fas fa-bicycle"></i> RideEasy<span>Admin</span></div>
+    <nav class="admin-nav">
+      <a href="/admin/dashboard" class="admin-nav__link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="/admin/bikes" class="admin-nav__link"><i class="fas fa-bicycle"></i> Bikes</a>
+      <a href="/admin/bookings" class="admin-nav__link"><i class="fas fa-calendar-check"></i> Bookings</a>
+      <a href="/admin/users" class="admin-nav__link"><i class="fas fa-users"></i> Users</a>
+      <a href="/admin/contacts" class="admin-nav__link active"><i class="fas fa-envelope"></i> Messages</a>
+      <a href="/" class="admin-nav__link"><i class="fas fa-globe"></i> View Site</a>
+      <a href="/auth/logout" class="admin-nav__link admin-nav__link--danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+  </aside>
+  <main class="admin-main">
+    <div class="admin-header"><h1>Contact Messages</h1></div>
+    <div class="admin-card">
+      <% if (contacts.length === 0) { %>
+        <div class="empty-state"><i class="fas fa-inbox"></i><h3>No messages yet</h3></div>
+      <% } else { %>
+      <div class="messages-list">
+        <% contacts.forEach(c => { %>
+        <div class="message-item <%= c.replied ? 'message-item--replied' : '' %>">
+          <div class="message-item__header">
+            <strong><%= c.name %></strong>
+            <span><%= c.email %></span>
+            <span class="text--muted"><%= new Date(c.createdAt).toLocaleString('en-IN') %></span>
+            <% if (!c.replied) { %>
+              <span class="status-badge status-badge--pending">New</span>
+            <% } else { %>
+              <span class="status-badge status-badge--confirmed">Replied</span>
+            <% } %>
+          </div>
+          <% if (c.subject) { %><p class="message-item__subject"><strong><%= c.subject %></strong></p><% } %>
+          <p class="message-item__body"><%= c.message %></p>
+          <% if (!c.replied) { %>
+          <form action="/admin/contacts/<%= c._id %>/replied" method="POST" style="display:inline">
+            <button type="submit" class="btn btn--primary btn--sm"><i class="fas fa-check"></i> Mark as Replied</button>
+          </form>
+          <a href="mailto:<%= c.email %>?subject=Re: <%= c.subject || 'Your message' %>" class="btn btn--outline btn--sm">
+            <i class="fas fa-reply"></i> Reply via Email
+          </a>
+          <% } %>
+        </div>
+        <% }) %>
+      </div>
+      <% } %>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/footer') %>

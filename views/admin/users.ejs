@@ -1,0 +1,52 @@
+<%- include('../partials/header') %>
+
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar__logo"><i class="fas fa-bicycle"></i> RideEasy<span>Admin</span></div>
+    <nav class="admin-nav">
+      <a href="/admin/dashboard" class="admin-nav__link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="/admin/bikes" class="admin-nav__link"><i class="fas fa-bicycle"></i> Bikes</a>
+      <a href="/admin/bookings" class="admin-nav__link"><i class="fas fa-calendar-check"></i> Bookings</a>
+      <a href="/admin/users" class="admin-nav__link active"><i class="fas fa-users"></i> Users</a>
+      <a href="/admin/contacts" class="admin-nav__link"><i class="fas fa-envelope"></i> Messages</a>
+      <a href="/" class="admin-nav__link"><i class="fas fa-globe"></i> View Site</a>
+      <a href="/auth/logout" class="admin-nav__link admin-nav__link--danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+  </aside>
+  <main class="admin-main">
+    <div class="admin-header">
+      <h1>Registered Users</h1>
+      <span class="admin-count"><%= users.length %> users</span>
+    </div>
+    <div class="admin-card">
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>Name</th><th>Email</th><th>Phone</th><th>City</th><th>Verified</th><th>Bookings</th><th>Joined</th></tr>
+          </thead>
+          <tbody>
+          <% users.forEach(u => { %>
+          <tr>
+            <td><strong><%= u.name %></strong></td>
+            <td><%= u.email %></td>
+            <td><%= u.phone || '—' %></td>
+            <td><%= u.city || '—' %></td>
+            <td>
+              <% if (u.isVerified) { %>
+                <span class="status-badge status-badge--confirmed"><i class="fas fa-check"></i> Yes</span>
+              <% } else { %>
+                <span class="status-badge status-badge--pending">No</span>
+              <% } %>
+            </td>
+            <td><strong><%= u.bookings.length %></strong></td>
+            <td><%= new Date(u.createdAt).toLocaleDateString('en-IN') %></td>
+          </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/footer') %>

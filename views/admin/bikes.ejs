@@ -1,0 +1,56 @@
+<%- include('../partials/header') %>
+
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar__logo"><i class="fas fa-bicycle"></i> RideEasy<span>Admin</span></div>
+    <nav class="admin-nav">
+      <a href="/admin/dashboard" class="admin-nav__link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="/admin/bikes" class="admin-nav__link active"><i class="fas fa-bicycle"></i> Bikes</a>
+      <a href="/admin/bookings" class="admin-nav__link"><i class="fas fa-calendar-check"></i> Bookings</a>
+      <a href="/admin/users" class="admin-nav__link"><i class="fas fa-users"></i> Users</a>
+      <a href="/admin/contacts" class="admin-nav__link"><i class="fas fa-envelope"></i> Messages</a>
+      <a href="/" class="admin-nav__link"><i class="fas fa-globe"></i> View Site</a>
+      <a href="/auth/logout" class="admin-nav__link admin-nav__link--danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+  </aside>
+  <main class="admin-main">
+    <div class="admin-header">
+      <h1>Manage Bikes</h1>
+      <a href="/admin/bikes/add" class="btn btn--primary"><i class="fas fa-plus"></i> Add Bike</a>
+    </div>
+    <div class="admin-card">
+      <% if (bikes.length === 0) { %>
+        <div class="empty-state"><i class="fas fa-bicycle"></i><h3>No bikes yet</h3><a href="/admin/bikes/add" class="btn btn--primary">Add First Bike</a></div>
+      <% } else { %>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Image</th><th>Name</th><th>Type</th><th>City</th><th>Price/hr</th><th>Price/day</th><th>Status</th><th>Rating</th><th>Actions</th></tr></thead>
+          <tbody>
+          <% bikes.forEach(bike => { %>
+          <tr>
+            <td><img src="<%= bike.images[0] || '/images/bike-default.jpg' %>" style="width:60px;height:45px;object-fit:cover;border-radius:6px"/></td>
+            <td><strong><%= bike.name %></strong><br/><small class="text--muted"><%= bike.brand %></small></td>
+            <td><span class="badge badge--type"><%= bike.type %></span></td>
+            <td><%= bike.city %></td>
+            <td>₹<%= bike.pricePerHour %></td>
+            <td>₹<%= bike.pricePerDay %></td>
+            <td><span class="status-badge status-badge--<%= bike.availability ? 'confirmed':'cancelled' %>"><%= bike.availability ? 'Available' : 'Unavailable' %></span></td>
+            <td><%= bike.avgRating %> ⭐ (<%= bike.reviews.length %>)</td>
+            <td class="table-actions">
+              <a href="/bikes/<%= bike._id %>" class="btn btn--outline btn--xs" target="_blank"><i class="fas fa-eye"></i></a>
+              <a href="/admin/bikes/<%= bike._id %>/edit" class="btn btn--primary btn--xs"><i class="fas fa-edit"></i></a>
+              <form action="/admin/bikes/<%= bike._id %>/delete" method="POST" style="display:inline" onsubmit="return confirm('Delete this bike?')">
+                <button class="btn btn--danger btn--xs"><i class="fas fa-trash"></i></button>
+              </form>
+            </td>
+          </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <% } %>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/footer') %>

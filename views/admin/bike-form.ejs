@@ -1,0 +1,127 @@
+<%- include('../partials/header') %>
+
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar__logo"><i class="fas fa-bicycle"></i> RideEasy<span>Admin</span></div>
+    <nav class="admin-nav">
+      <a href="/admin/dashboard" class="admin-nav__link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="/admin/bikes" class="admin-nav__link active"><i class="fas fa-bicycle"></i> Bikes</a>
+      <a href="/admin/bookings" class="admin-nav__link"><i class="fas fa-calendar-check"></i> Bookings</a>
+      <a href="/admin/users" class="admin-nav__link"><i class="fas fa-users"></i> Users</a>
+      <a href="/admin/contacts" class="admin-nav__link"><i class="fas fa-envelope"></i> Messages</a>
+      <a href="/" class="admin-nav__link"><i class="fas fa-globe"></i> View Site</a>
+      <a href="/auth/logout" class="admin-nav__link admin-nav__link--danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+  </aside>
+  <main class="admin-main">
+    <div class="admin-header">
+      <h1><%= bike ? 'Edit Bike' : 'Add New Bike' %></h1>
+      <a href="/admin/bikes" class="btn btn--outline"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+
+    <div class="admin-card">
+      <form action="<%= bike ? '/admin/bikes/'+bike._id+'/edit' : '/admin/bikes/add' %>" method="POST" enctype="multipart/form-data" class="admin-form">
+
+        <div class="form-section"><h4>Basic Info</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Bike Name *</label>
+              <input type="text" name="name" class="input" value="<%= bike?.name || '' %>" required placeholder="e.g. Trek FX3"/>
+            </div>
+            <div class="form-group">
+              <label>Brand *</label>
+              <input type="text" name="brand" class="input" value="<%= bike?.brand || '' %>" required placeholder="e.g. Trek"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Bike Type *</label>
+              <select name="type" class="input" required>
+                <% ['Mountain','Road','City','Electric','Hybrid','BMX','Kids'].forEach(t => { %>
+                  <option value="<%= t %>" <%= bike?.type === t ? 'selected' : '' %>><%= t %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>City *</label>
+              <select name="city" class="input" required>
+                <% ['Mumbai','Delhi','Bangalore','Hyderabad','Chennai','Pune','Kolkata','Jaipur','Goa','Manali'].forEach(c => { %>
+                  <option value="<%= c %>" <%= bike?.city === c ? 'selected' : '' %>><%= c %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Location / Pickup Point *</label>
+            <input type="text" name="location" class="input" value="<%= bike?.location || '' %>" required placeholder="e.g. Bandra West, near station"/>
+          </div>
+          <div class="form-group">
+            <label>Description *</label>
+            <textarea name="description" class="textarea" rows="4" required><%= bike?.description || '' %></textarea>
+          </div>
+        </div>
+
+        <div class="form-section"><h4>Pricing</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Price per Hour (₹) *</label>
+              <input type="number" name="pricePerHour" class="input" value="<%= bike?.pricePerHour || '' %>" required min="1"/>
+            </div>
+            <div class="form-group">
+              <label>Price per Day (₹) *</label>
+              <input type="number" name="pricePerDay" class="input" value="<%= bike?.pricePerDay || '' %>" required min="1"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section"><h4>Specifications</h4>
+          <div class="form-row">
+            <div class="form-group"><label>Gears</label><input type="text" name="gears" class="input" value="<%= bike?.specs?.gears || '' %>" placeholder="e.g. 21-speed"/></div>
+            <div class="form-group"><label>Frame Size</label><input type="text" name="frameSize" class="input" value="<%= bike?.specs?.frameSize || '' %>" placeholder="e.g. Medium 17"/></div>
+            <div class="form-group"><label>Wheel Size</label><input type="text" name="wheelSize" class="input" value="<%= bike?.specs?.wheelSize || '' %>" placeholder="e.g. 26 inch"/></div>
+            <div class="form-group"><label>Weight</label><input type="text" name="weight" class="input" value="<%= bike?.specs?.weight || '' %>" placeholder="e.g. 12 kg"/></div>
+            <div class="form-group"><label>Color</label><input type="text" name="color" class="input" value="<%= bike?.specs?.color || '' %>" placeholder="e.g. Matte Black"/></div>
+          </div>
+        </div>
+
+        <div class="form-section"><h4>Images</h4>
+          <div class="form-group">
+            <label>Bike Images (max 5)</label>
+            <input type="file" name="images" class="input" multiple accept="image/*"/>
+            <% if (bike?.images?.length) { %>
+              <div class="existing-images">
+                <% bike.images.forEach(img => { %><img src="<%= img %>" alt=""/><% }) %>
+              </div>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="form-section"><h4>Settings</h4>
+          <div class="form-row">
+            <div class="form-group form-group--check">
+              <label><input type="checkbox" name="featured" <%= bike?.featured ? 'checked' : '' %>/> Feature on Homepage</label>
+            </div>
+            <% if (bike) { %>
+            <div class="form-group">
+              <label>Availability</label>
+              <select name="availability" class="input">
+                <option value="true" <%= bike.availability ? 'selected' : '' %>>Available</option>
+                <option value="false" <%= !bike.availability ? 'selected' : '' %>>Unavailable</option>
+              </select>
+            </div>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <a href="/admin/bikes" class="btn btn--outline">Cancel</a>
+          <button type="submit" class="btn btn--primary btn--lg">
+            <i class="fas fa-save"></i> <%= bike ? 'Update Bike' : 'Add Bike' %>
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/footer') %>

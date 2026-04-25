@@ -1,0 +1,139 @@
+<%- include('../partials/header') %>
+
+<div class="page-header">
+  <div class="container">
+    <h1>Book Your Bike</h1>
+    <p>Complete your reservation for <%= bike.name %></p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="booking-layout">
+
+      <!-- Booking Form -->
+      <div class="booking-form-card">
+        <h3><i class="fas fa-calendar-alt"></i> Reservation Details</h3>
+        <form action="/booking/create" method="POST" id="bookingForm">
+          <input type="hidden" name="bikeId" value="<%= bike._id %>"/>
+
+          <div class="form-group">
+            <label>Rental Type</label>
+            <div class="rental-type-group">
+              <label class="rental-option">
+                <input type="radio" name="rentalType" value="hourly" id="typeHourly" checked/>
+                <span><i class="fas fa-clock"></i> Hourly<br/><small>₹<%= bike.pricePerHour %>/hr</small></span>
+              </label>
+              <label class="rental-option">
+                <input type="radio" name="rentalType" value="daily" id="typeDaily"/>
+                <span><i class="fas fa-calendar"></i> Daily<br/><small>₹<%= bike.pricePerDay %>/day</small></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label><i class="fas fa-play-circle"></i> Start Date & Time</label>
+              <input type="datetime-local" name="startDate" id="startDate" class="input" required
+                     min="<%= new Date().toISOString().slice(0,16) %>"/>
+            </div>
+            <div class="form-group">
+              <label><i class="fas fa-stop-circle"></i> End Date & Time</label>
+              <input type="datetime-local" name="endDate" id="endDate" class="input" required/>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-sticky-note"></i> Special Requests (optional)</label>
+            <textarea name="notes" class="textarea" placeholder="Any special requirements…" rows="3"></textarea>
+          </div>
+
+          <!-- Live price calc -->
+          <div class="price-calc" id="priceCalc" style="display:none">
+            <div class="price-calc__row"><span>Duration</span><strong id="calcDuration">–</strong></div>
+            <div class="price-calc__row"><span>Rate</span><strong id="calcRate">–</strong></div>
+            <div class="price-calc__row price-calc__total"><span>Total Amount</span><strong id="calcTotal">–</strong></div>
+          </div>
+
+          <div id="availStatus" class="avail-result" style="margin-bottom:12px"></div>
+
+          <button type="submit" class="btn btn--primary btn--full btn--lg" id="submitBtn">
+            <i class="fas fa-arrow-right"></i> Proceed to Payment
+          </button>
+        </form>
+      </div>
+
+      <!-- Bike Summary -->
+      <div class="booking-summary">
+        <h3>Bike Summary</h3>
+        <img src="<%= bike.images[0] || '/images/bike-default.jpg' %>" alt="<%= bike.name %>" class="booking-summary__img"/>
+        <h4><%= bike.name %></h4>
+        <p><i class="fas fa-tag"></i> <%= bike.brand %> · <%= bike.type %></p>
+        <p><i class="fas fa-map-marker-alt"></i> <%= bike.location %>, <%= bike.city %></p>
+        <div class="summary-pricing">
+          <div><span>Hourly</span><strong>₹<%= bike.pricePerHour %>/hr</strong></div>
+          <div><span>Daily</span><strong>₹<%= bike.pricePerDay %>/day</strong></div>
+        </div>
+        <div class="summary-note">
+          <i class="fas fa-info-circle"></i>
+          Payment processed securely via Razorpay. COD also available.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+const pricePerHour = <%= bike.pricePerHour %>;
+const pricePerDay  = <%= bike.pricePerDay %>;
+const bikeId       = '<%= bike._id %>';
+let availCheckTimeout;
+
+function calcPrice() {
+  const start     = new Date(document.getElementById('startDate').value);
+  const end       = new Date(document.getElementById('endDate').value);
+  const isHourly  = document.getElementById('typeHourly').checked;
+  const calcDiv   = document.getElementById('priceCalc');
+
+  if (!start || !end || end <= start) { calcDiv.style.display='none'; return; }
+
+  let duration, rate, total;
+  if (isHourly) {
+    duration = Math.ceil((end - start) / 3600000);
+    rate = `₹${pricePerHour}/hr`;
+    total = duration * pricePerHour;
+    document.getElementById('calcDuration').textContent = duration + ' hour(s)';
+  } else {
+    duration = Math.ceil((end - start) / 86400000);
+    rate = `₹${pricePerDay}/day`;
+    total = duration * pricePerDay;
+    document.getElementById('calcDuration').textContent = duration + ' day(s)';
+  }
+  document.getElementById('calcRate').textContent  = rate;
+  document.getElementById('calcTotal').textContent = `₹${total}`;
+  calcDiv.style.display = 'grid';
+
+  // Debounce availability check
+  clearTimeout(availCheckTimeout);
+  availCheckTimeout = setTimeout(() => checkAvail(start, end), 600);
+}
+
+async function checkAvail(start, end) {
+  const res = document.getElementById('availStatus');
+  try {
+    const r = await fetch(`/api/availability/${bikeId}?start=${start.toISOString()}&end=${end.toISOString()}`);
+    const d = await r.json();
+    res.innerHTML = d.available
+      ? '<span class="avail--ok"><i class="fas fa-check-circle"></i> Available for these dates</span>'
+      : '<span class="avail--no"><i class="fas fa-times-circle"></i> Not available — please choose other dates</span>';
+    document.getElementById('submitBtn').disabled = !d.available;
+  } catch(e) { res.innerHTML = ''; }
+}
+
+document.getElementById('startDate').addEventListener('change', calcPrice);
+document.getElementById('endDate').addEventListener('change', calcPrice);
+document.querySelectorAll('input[name="rentalType"]').forEach(r => r.addEventListener('change', calcPrice));
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,143 @@
+<%- include('partials/header') %>
+
+<!-- ── HERO ─────────────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero__overlay"></div>
+  <div class="hero__content container">
+    <span class="hero__badge"><i class="fas fa-star"></i> #1 Bike Rental in India</span>
+    <h1 class="hero__title">Explore the World<br/><span class="text--accent">Two Wheels at a Time</span></h1>
+    <p class="hero__sub">Rent quality bikes across Mumbai, Goa, Manali, Bangalore & more.</p>
+    <!-- Search Bar -->
+    <form class="hero__search" action="/bikes" method="GET">
+      <div class="search-group">
+        <i class="fas fa-map-marker-alt"></i>
+        <select name="city" class="search-input">
+          <option value="">All Cities</option>
+          <% ['Mumbai','Delhi','Bangalore','Hyderabad','Chennai','Pune','Kolkata','Jaipur','Goa','Manali'].forEach(c => { %>
+            <option value="<%= c %>"><%= c %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="search-group">
+        <i class="fas fa-bicycle"></i>
+        <select name="type" class="search-input">
+          <option value="">All Types</option>
+          <% ['Mountain','Road','City','Electric','Hybrid','BMX','Kids'].forEach(t => { %>
+            <option value="<%= t %>"><%= t %></option>
+          <% }) %>
+        </select>
+      </div>
+      <button type="submit" class="btn btn--primary btn--lg"><i class="fas fa-search"></i> Find Bikes</button>
+    </form>
+    <div class="hero__stats">
+      <div class="stat"><strong>500+</strong><span>Bikes</span></div>
+      <div class="stat"><strong>15+</strong><span>Cities</span></div>
+      <div class="stat"><strong>10k+</strong><span>Happy Riders</span></div>
+      <div class="stat"><strong>4.8★</strong><span>Rating</span></div>
+    </div>
+  </div>
+  <div class="hero__scroll"><a href="#featured"><i class="fas fa-chevron-down"></i></a></div>
+</section>
+
+<!-- ── HOW IT WORKS ───────────────────────────────────────────────────────────── -->
+<section class="section how-it-works">
+  <div class="container">
+    <div class="section__header">
+      <span class="section__tag">Simple Process</span>
+      <h2>How It Works</h2>
+      <p>Rent a bike in 3 easy steps</p>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="step__icon"><i class="fas fa-search"></i></div><h3>Browse & Choose</h3><p>Filter by city, type and price to find your perfect ride.</p></div>
+      <div class="step step--line"></div>
+      <div class="step"><div class="step__icon"><i class="fas fa-calendar-alt"></i></div><h3>Book & Pay</h3><p>Select your dates and pay securely via Razorpay or COD.</p></div>
+      <div class="step step--line"></div>
+      <div class="step"><div class="step__icon"><i class="fas fa-bicycle"></i></div><h3>Ride & Explore</h3><p>Pick up your bike and enjoy your adventure!</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURED BIKES ─────────────────────────────────────────────────────────── -->
+<section class="section featured" id="featured">
+  <div class="container">
+    <div class="section__header">
+      <span class="section__tag">Top Picks</span>
+      <h2>Featured Bikes</h2>
+      <p>Handpicked rides for every adventure</p>
+    </div>
+    <div class="bikes-grid">
+      <% if (bikes.length === 0) { %>
+        <p class="text-center" style="grid-column:1/-1">No bikes available yet. Check back soon!</p>
+      <% } %>
+      <% bikes.forEach(bike => { %>
+      <div class="bike-card">
+        <div class="bike-card__img">
+          <img src="<%= bike.images[0] || '/images/bike-default.jpg' %>" alt="<%= bike.name %>" loading="lazy"/>
+          <span class="bike-card__badge"><%= bike.type %></span>
+          <% if (!bike.availability) { %><span class="bike-card__badge bike-card__badge--unavailable">Unavailable</span><% } %>
+        </div>
+        <div class="bike-card__body">
+          <h3 class="bike-card__name"><%= bike.name %></h3>
+          <p class="bike-card__city"><i class="fas fa-map-marker-alt"></i> <%= bike.city %></p>
+          <div class="bike-card__rating">
+            <% for(let i=1;i<=5;i++) { %><i class="fas fa-star <%= i <= Math.round(bike.avgRating) ? 'text--accent' : 'text--muted' %>"></i><% } %>
+            <span>(<%= bike.reviews.length %>)</span>
+          </div>
+          <div class="bike-card__price">
+            <span class="price--main">₹<%= bike.pricePerHour %>/hr</span>
+            <span class="price--day">₹<%= bike.pricePerDay %>/day</span>
+          </div>
+          <a href="/bikes/<%= bike._id %>" class="btn btn--primary btn--full">View Details</a>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+    <div class="text-center mt-2">
+      <a href="/bikes" class="btn btn--outline btn--lg">View All Bikes <i class="fas fa-arrow-right"></i></a>
+    </div>
+  </div>
+</section>
+
+<!-- ── WHY US ──────────────────────────────────────────────────────────────────── -->
+<section class="section why-us">
+  <div class="container">
+    <div class="section__header">
+      <span class="section__tag">Why RideEasy</span>
+      <h2>The Best Bike Rental Experience</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature"><i class="fas fa-shield-alt"></i><h4>Insured Rides</h4><p>Every bike comes with basic insurance coverage.</p></div>
+      <div class="feature"><i class="fas fa-tools"></i><h4>Well Maintained</h4><p>All bikes are regularly serviced & safety checked.</p></div>
+      <div class="feature"><i class="fas fa-headset"></i><h4>24/7 Support</h4><p>We're always here to help you on the road.</p></div>
+      <div class="feature"><i class="fas fa-rupee-sign"></i><h4>Best Prices</h4><p>Competitive pricing with no hidden charges.</p></div>
+      <div class="feature"><i class="fas fa-map-marked-alt"></i><h4>Multiple Locations</h4><p>Pickup & drop at 50+ locations across India.</p></div>
+      <div class="feature"><i class="fas fa-mobile-alt"></i><h4>Easy Booking</h4><p>Book in minutes from your phone or desktop.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TESTIMONIALS ───────────────────────────────────────────────────────────── -->
+<section class="section testimonials">
+  <div class="container">
+    <div class="section__header">
+      <span class="section__tag">Reviews</span>
+      <h2>What Riders Say</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial"><div class="testimonial__stars">★★★★★</div><p>"Booked a mountain bike for Manali trip. Excellent condition and very easy process!"</p><div class="testimonial__author"><strong>Arjun Sharma</strong><span>Delhi</span></div></div>
+      <div class="testimonial"><div class="testimonial__stars">★★★★★</div><p>"Used RideEasy in Goa for 3 days. The electric bike was amazing. Will book again!"</p><div class="testimonial__author"><strong>Priya Nair</strong><span>Bangalore</span></div></div>
+      <div class="testimonial"><div class="testimonial__stars">★★★★☆</div><p>"Great selection of bikes. Customer support was very helpful when I had questions."</p><div class="testimonial__author"><strong>Rohan Mehta</strong><span>Mumbai</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ────────────────────────────────────────────────────────────────────── -->
+<section class="cta">
+  <div class="container">
+    <h2>Ready to Start Your Adventure?</h2>
+    <p>Join 10,000+ happy riders. Book your bike today!</p>
+    <a href="/bikes" class="btn btn--white btn--lg">Browse Bikes <i class="fas fa-arrow-right"></i></a>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

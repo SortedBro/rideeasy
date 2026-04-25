@@ -1,0 +1,66 @@
+<%- include('../partials/header') %>
+
+<div class="page-header">
+  <div class="container">
+    <h1>Booking Details</h1>
+    <p>Booking ID: <strong><%= booking.bookingId %></strong></p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container container--narrow">
+    <div class="booking-detail-card">
+      <!-- Status Banner -->
+      <div class="booking-status booking-status--<%= booking.status %>">
+        <% const icons = {pending:'clock',confirmed:'check-circle',active:'bicycle',completed:'flag-checkered',cancelled:'times-circle'} %>
+        <i class="fas fa-<%= icons[booking.status] || 'info-circle' %>"></i>
+        Booking <%= booking.status.charAt(0).toUpperCase() + booking.status.slice(1) %>
+      </div>
+
+      <!-- Bike Info -->
+      <div class="booking-detail__bike">
+        <img src="<%= booking.bike.images?.[0] || '/images/bike-default.jpg' %>" alt=""/>
+        <div>
+          <h3><%= booking.bike.name %></h3>
+          <p><i class="fas fa-map-marker-alt"></i> <%= booking.bike.city %></p>
+        </div>
+      </div>
+
+      <div class="detail-grid">
+        <div class="detail-item"><span>Booking ID</span><strong><%= booking.bookingId %></strong></div>
+        <div class="detail-item"><span>Rental Type</span><strong><%= booking.rentalType === 'hourly' ? '⏰ Hourly' : '📅 Daily' %></strong></div>
+        <div class="detail-item"><span>Start</span><strong><%= new Date(booking.startDate).toLocaleString('en-IN') %></strong></div>
+        <div class="detail-item"><span>End</span><strong><%= new Date(booking.endDate).toLocaleString('en-IN') %></strong></div>
+        <% if (booking.rentalType === 'hourly') { %>
+          <div class="detail-item"><span>Duration</span><strong><%= booking.hours %> hours</strong></div>
+        <% } else { %>
+          <div class="detail-item"><span>Duration</span><strong><%= booking.days %> days</strong></div>
+        <% } %>
+        <div class="detail-item"><span>Pickup Location</span><strong><%= booking.pickupLocation %></strong></div>
+        <div class="detail-item"><span>Payment Method</span><strong><%= booking.payment.method.toUpperCase() %></strong></div>
+        <div class="detail-item"><span>Payment Status</span>
+          <strong class="payment-status--<%= booking.payment.status %>"><%= booking.payment.status.toUpperCase() %></strong>
+        </div>
+        <div class="detail-item detail-item--total"><span>Total Amount</span><strong class="text--accent">₹<%= booking.totalAmount %></strong></div>
+      </div>
+
+      <% if (booking.notes) { %>
+        <div class="booking-notes"><strong>Notes:</strong> <%= booking.notes %></div>
+      <% } %>
+
+      <div class="booking-detail__actions">
+        <a href="/user/bookings" class="btn btn--outline"><i class="fas fa-arrow-left"></i> Back to Bookings</a>
+        <% if (!['completed','cancelled'].includes(booking.status)) { %>
+          <form action="/booking/<%= booking._id %>/cancel" method="POST" onsubmit="return confirm('Cancel this booking?')">
+            <button type="submit" class="btn btn--danger"><i class="fas fa-times"></i> Cancel Booking</button>
+          </form>
+        <% } %>
+        <% if (booking.status === 'completed') { %>
+          <a href="/bikes/<%= booking.bike._id %>" class="btn btn--primary"><i class="fas fa-star"></i> Leave Review</a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

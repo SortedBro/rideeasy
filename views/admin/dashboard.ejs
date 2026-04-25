@@ -1,0 +1,97 @@
+<%- include('../partials/header') %>
+
+<div class="admin-layout">
+  <!-- Admin Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar__logo"><i class="fas fa-bicycle"></i> RideEasy<span>Admin</span></div>
+    <nav class="admin-nav">
+      <a href="/admin/dashboard" class="admin-nav__link active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="/admin/bikes" class="admin-nav__link"><i class="fas fa-bicycle"></i> Bikes</a>
+      <a href="/admin/bookings" class="admin-nav__link"><i class="fas fa-calendar-check"></i> Bookings</a>
+      <a href="/admin/users" class="admin-nav__link"><i class="fas fa-users"></i> Users</a>
+      <a href="/admin/contacts" class="admin-nav__link"><i class="fas fa-envelope"></i> Messages <% if(stats.contacts>0){%><span class="badge-count"><%= stats.contacts %></span><%}%></a>
+      <a href="/" class="admin-nav__link"><i class="fas fa-globe"></i> View Site</a>
+      <a href="/auth/logout" class="admin-nav__link admin-nav__link--danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+  </aside>
+
+  <!-- Admin Content -->
+  <main class="admin-main">
+    <div class="admin-header">
+      <h1>Dashboard Overview</h1>
+      <p>Welcome, Admin! Here's what's happening today.</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="admin-stats">
+      <div class="admin-stat admin-stat--blue"><i class="fas fa-bicycle"></i><div><strong><%= stats.totalBikes %></strong><span>Total Bikes</span></div></div>
+      <div class="admin-stat admin-stat--green"><i class="fas fa-users"></i><div><strong><%= stats.totalUsers %></strong><span>Registered Users</span></div></div>
+      <div class="admin-stat admin-stat--orange"><i class="fas fa-calendar-check"></i><div><strong><%= stats.totalBookings %></strong><span>Total Bookings</span></div></div>
+      <div class="admin-stat admin-stat--purple"><i class="fas fa-rupee-sign"></i><div><strong>₹<%= stats.revenue.toLocaleString('en-IN') %></strong><span>Total Revenue</span></div></div>
+    </div>
+
+    <div class="admin-content-grid">
+      <!-- Recent Bookings -->
+      <div class="admin-card admin-card--wide">
+        <div class="admin-card__header">
+          <h3>Recent Bookings</h3>
+          <a href="/admin/bookings" class="btn btn--outline btn--sm">View All</a>
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>ID</th><th>User</th><th>Bike</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody>
+            <% recentBookings.forEach(b => { %>
+            <tr>
+              <td><code><%= b.bookingId %></code></td>
+              <td><%= b.user?.name || 'N/A' %></td>
+              <td><%= b.bike?.name || 'N/A' %></td>
+              <td><strong>₹<%= b.totalAmount %></strong></td>
+              <td><span class="status-badge status-badge--<%= b.status %>"><%= b.status %></span></td>
+              <td><%= new Date(b.createdAt).toLocaleDateString('en-IN') %></td>
+            </tr>
+            <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Bike Type Distribution -->
+      <div class="admin-card">
+        <h3>Bookings by Bike Type</h3>
+        <div class="chart-list">
+          <% bikeTypeStats.forEach(stat => {
+            const max = Math.max(...bikeTypeStats.map(s=>s.count));
+            const pct = Math.round((stat.count/max)*100);
+          %>
+          <div class="chart-bar-item">
+            <span><%= stat._id %></span>
+            <div class="chart-bar"><div class="chart-bar__fill" style="width:<%= pct %>%"></div></div>
+            <strong><%= stat.count %></strong>
+          </div>
+          <% }) %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Revenue Chart (simple CSS bars) -->
+    <div class="admin-card">
+      <h3>Monthly Revenue (₹)</h3>
+      <div class="revenue-chart">
+        <% const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+           const maxRev = Math.max(...monthlyRevenue.map(m=>m.total), 1);
+           monthlyRevenue.forEach(m => {
+             const h = Math.round((m.total/maxRev)*120);
+        %>
+        <div class="rev-bar">
+          <span class="rev-bar__val">₹<%= Math.round(m.total/1000) %>k</span>
+          <div class="rev-bar__fill" style="height:<%= h %>px"></div>
+          <span class="rev-bar__label"><%= months[m._id-1] %></span>
+        </div>
+        <% }) %>
+      </div>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/footer') %>

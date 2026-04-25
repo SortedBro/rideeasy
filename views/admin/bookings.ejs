@@ -1,0 +1,86 @@
+<%- include('../partials/header') %>
+
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar__logo"><i class="fas fa-bicycle"></i> RideEasy<span>Admin</span></div>
+    <nav class="admin-nav">
+      <a href="/admin/dashboard" class="admin-nav__link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="/admin/bikes" class="admin-nav__link"><i class="fas fa-bicycle"></i> Bikes</a>
+      <a href="/admin/bookings" class="admin-nav__link active"><i class="fas fa-calendar-check"></i> Bookings</a>
+      <a href="/admin/users" class="admin-nav__link"><i class="fas fa-users"></i> Users</a>
+      <a href="/admin/contacts" class="admin-nav__link"><i class="fas fa-envelope"></i> Messages</a>
+      <a href="/" class="admin-nav__link"><i class="fas fa-globe"></i> View Site</a>
+      <a href="/auth/logout" class="admin-nav__link admin-nav__link--danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+  </aside>
+  <main class="admin-main">
+    <div class="admin-header">
+      <h1>Manage Bookings</h1>
+    </div>
+
+    <!-- Status Filter -->
+    <div class="filter-tabs" style="margin-bottom:20px">
+      <% ['all','pending','confirmed','active','completed','cancelled'].forEach(s => { %>
+        <a href="/admin/bookings<%= s!=='all'?'?status='+s:'' %>"
+           class="filter-tab <%= status===s?'active':'' %>">
+          <%= s.charAt(0).toUpperCase()+s.slice(1) %>
+        </a>
+      <% }) %>
+    </div>
+
+    <div class="admin-card">
+      <% if (bookings.length === 0) { %>
+        <div class="empty-state"><i class="fas fa-calendar-times"></i><h3>No bookings found</h3></div>
+      <% } else { %>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Booking ID</th><th>User</th><th>Bike</th>
+              <th>Dates</th><th>Amount</th><th>Payment</th>
+              <th>Status</th><th>Update Status</th>
+            </tr>
+          </thead>
+          <tbody>
+          <% bookings.forEach(b => { %>
+          <tr>
+            <td><code><%= b.bookingId %></code></td>
+            <td>
+              <strong><%= b.user?.name || 'N/A' %></strong><br/>
+              <small class="text--muted"><%= b.user?.email %></small>
+            </td>
+            <td><%= b.bike?.name || 'N/A' %></td>
+            <td>
+              <small>
+                <%= new Date(b.startDate).toLocaleDateString('en-IN') %><br/>
+                → <%= new Date(b.endDate).toLocaleDateString('en-IN') %>
+              </small>
+            </td>
+            <td><strong>₹<%= b.totalAmount %></strong></td>
+            <td>
+              <span class="status-badge status-badge--<%= b.payment.status === 'paid' ? 'confirmed' : 'pending' %>">
+                <%= b.payment.method.toUpperCase() %> / <%= b.payment.status %>
+              </span>
+            </td>
+            <td><span class="status-badge status-badge--<%= b.status %>"><%= b.status %></span></td>
+            <td>
+              <form action="/admin/bookings/<%= b._id %>/status" method="POST" class="inline-form">
+                <select name="status" class="input input--sm">
+                  <% ['pending','confirmed','active','completed','cancelled'].forEach(s => { %>
+                    <option value="<%= s %>" <%= b.status===s?'selected':'' %>><%= s %></option>
+                  <% }) %>
+                </select>
+                <button type="submit" class="btn btn--primary btn--xs">Update</button>
+              </form>
+            </td>
+          </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <% } %>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,57 @@
+<%- include('../partials/header') %>
+
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-card__header">
+      <a href="/" class="auth-card__logo"><i class="fas fa-bicycle"></i> RideEasy</a>
+      <h2>Create Account</h2>
+      <p>Join thousands of happy riders</p>
+    </div>
+    <form action="/auth/register" method="POST" class="auth-form">
+      <div class="form-group">
+        <label><i class="fas fa-user"></i> Full Name</label>
+        <input type="text" name="name" class="input" placeholder="John Doe" required/>
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-envelope"></i> Email Address</label>
+        <input type="email" name="email" class="input" placeholder="you@example.com" required/>
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-phone"></i> Phone Number</label>
+        <input type="tel" name="phone" class="input" placeholder="+91 98765 43210"/>
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-lock"></i> Password</label>
+        <div class="input-pass">
+          <input type="password" name="password" id="passInput" class="input" placeholder="Min 6 characters" required minlength="6"/>
+          <button type="button" class="pass-toggle" onclick="togglePass('passInput',this)"><i class="fas fa-eye"></i></button>
+        </div>
+      </div>
+      <button type="submit" class="btn btn--primary btn--full btn--lg">
+        <i class="fas fa-user-plus"></i> Register & Get OTP
+      </button>
+    </form>
+    <p class="auth-card__footer">Already have an account? <a href="/auth/login">Login</a></p>
+  </div>
+  <div class="auth-illustration">
+    <div class="auth-illustration__inner">
+      <i class="fas fa-bicycle auth-illustration__icon"></i>
+      <h3>Start Your Adventure</h3>
+      <ul>
+        <li><i class="fas fa-check"></i> 500+ bikes across 15+ cities</li>
+        <li><i class="fas fa-check"></i> Hourly & daily rentals</li>
+        <li><i class="fas fa-check"></i> Secure payments via Razorpay</li>
+        <li><i class="fas fa-check"></i> 24/7 customer support</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+function togglePass(id, btn) {
+  const inp = document.getElementById(id);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.innerHTML = inp.type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+}
+</script>
+<%- include('../partials/footer') %>

@@ -1,0 +1,28 @@
+<%- include('../partials/header') %>
+
+<div class="auth-page auth-page--center">
+  <div class="auth-card auth-card--narrow">
+    <div class="auth-card__header">
+      <a href="/" class="auth-card__logo"><i class="fas fa-bicycle"></i> RideEasy</a>
+      <div class="otp-icon"><i class="fas fa-shield-alt"></i></div>
+      <h2>Verify Your Email</h2>
+      <p>We've sent a 6-digit OTP to your email address.</p>
+    </div>
+    <form action="/auth/verify-otp" method="POST" class="auth-form">
+      <div class="form-group">
+        <label><i class="fas fa-key"></i> Enter OTP</label>
+        <input type="text" name="otp" class="input input--otp" placeholder="• • • • • •"
+               maxlength="6" pattern="[0-9]{6}" required autocomplete="one-time-code"/>
+      </div>
+      <button type="submit" class="btn btn--primary btn--full btn--lg">
+        <i class="fas fa-check-circle"></i> Verify OTP
+      </button>
+    </form>
+    <div class="otp-resend">
+      <p>Didn't receive? <a href="/auth/login">Request again</a></p>
+      <p class="text--muted" style="font-size:0.8rem">OTP expires in 10 minutes</p>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

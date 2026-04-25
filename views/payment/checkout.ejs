@@ -1,0 +1,111 @@
+<%- include('../partials/header') %>
+
+<div class="page-header">
+  <div class="container">
+    <h1>Secure Checkout</h1>
+    <p>Complete your payment to confirm booking</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container container--narrow">
+    <div class="checkout-card">
+      <!-- Order Summary -->
+      <div class="checkout-summary">
+        <h3><i class="fas fa-receipt"></i> Order Summary</h3>
+        <div class="checkout-bike">
+          <img src="<%= booking.bike.images?.[0] || '/images/bike-default.jpg' %>" alt=""/>
+          <div>
+            <h4><%= booking.bike.name %></h4>
+            <p><i class="fas fa-map-marker-alt"></i> <%= booking.bike.city %></p>
+          </div>
+        </div>
+        <div class="checkout-details">
+          <div><span>Booking ID</span><strong><%= booking.bookingId %></strong></div>
+          <div><span>From</span><strong><%= new Date(booking.startDate).toLocaleString('en-IN') %></strong></div>
+          <div><span>To</span><strong><%= new Date(booking.endDate).toLocaleString('en-IN') %></strong></div>
+          <div><span>Rental Type</span><strong><%= booking.rentalType %></strong></div>
+          <div><span>Duration</span><strong><%= booking.rentalType === 'hourly' ? booking.hours + ' hour(s)' : booking.days + ' day(s)' %></strong></div>
+        </div>
+        <div class="checkout-total">
+          <span>Total Amount</span>
+          <strong class="text--accent text--xl">₹<%= booking.totalAmount %></strong>
+        </div>
+      </div>
+
+      <!-- Payment Options -->
+      <div class="payment-options">
+        <h3><i class="fas fa-credit-card"></i> Choose Payment Method</h3>
+
+        <!-- Razorpay -->
+        <button id="rzpBtn" class="btn btn--primary btn--full btn--lg pay-btn" onclick="initiateRazorpay()">
+          <img src="https://razorpay.com/favicon.png" width="20" alt=""/> Pay ₹<%= booking.totalAmount %> via Razorpay
+        </button>
+
+        <div class="payment-divider">or</div>
+
+        <!-- COD -->
+        <form action="/payment/cod/<%= booking._id %>" method="POST">
+          <button type="submit" class="btn btn--outline btn--full btn--lg pay-btn">
+            <i class="fas fa-money-bill-wave"></i> Pay at Pickup (COD)
+          </button>
+        </form>
+
+        <p class="payment-secure"><i class="fas fa-lock"></i> All payments are secured with 256-bit SSL encryption</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+async function initiateRazorpay() {
+  const btn = document.getElementById('rzpBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing…';
+
+  try {
+    const res = await fetch('/payment/create-order/<%= booking._id %>', { method: 'POST' });
+    const order = await res.json();
+    if (order.error) { alert('Error: ' + order.error); btn.disabled=false; return; }
+
+    const options = {
+      key:         '<%= razorpayKey %>',
+      amount:      order.amount,
+      currency:    order.currency,
+      name:        'RideEasy Bikes',
+      description: 'Bike Rental – <%= booking.bookingId %>',
+      order_id:    order.orderId,
+      prefill: {
+        name:  '<%= user.name %>',
+        email: '<%= user.email %>'
+      },
+      theme: { color: '#ff6b35' },
+      handler: function(response) {
+        // Post to verify
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/payment/verify';
+        [['razorpay_order_id',   response.razorpay_order_id],
+         ['razorpay_payment_id', response.razorpay_payment_id],
+         ['razorpay_signature',  response.razorpay_signature],
+         ['bookingId',           '<%= booking._id %>']
+        ].forEach(([k, v]) => {
+          const inp = document.createElement('input');
+          inp.type = 'hidden'; inp.name = k; inp.value = v;
+          form.appendChild(inp);
+        });
+        document.body.appendChild(form);
+        form.submit();
+      },
+      modal: { ondismiss: () => { btn.disabled=false; btn.innerHTML='<img src="https://razorpay.com/favicon.png" width="20"/> Pay ₹<%= booking.totalAmount %> via Razorpay'; } }
+    };
+    new Razorpay(options).open();
+  } catch(e) {
+    alert('Payment init failed: ' + e.message);
+    btn.disabled = false;
+  }
+}
+</script>
+
+<%- include('../partials/footer') %>

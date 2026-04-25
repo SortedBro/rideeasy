@@ -1,0 +1,140 @@
+<%- include('../partials/header') %>
+
+<div class="container" style="padding-top:100px">
+  <div class="breadcrumb">
+    <a href="/">Home</a> / <a href="/bikes">Bikes</a> / <%= bike.name %>
+  </div>
+
+  <div class="bike-detail">
+    <!-- Gallery -->
+    <div class="bike-detail__gallery">
+      <img class="gallery__main" id="mainImg" src="<%= bike.images[0] || '/images/bike-default.jpg' %>" alt="<%= bike.name %>"/>
+      <% if (bike.images.length > 1) { %>
+      <div class="gallery__thumbs">
+        <% bike.images.forEach((img, i) => { %>
+          <img src="<%= img %>" alt="" class="gallery__thumb <%= i===0 ? 'active' : '' %>" onclick="document.getElementById('mainImg').src='<%= img %>'; document.querySelectorAll('.gallery__thumb').forEach(t=>t.classList.remove('active')); this.classList.add('active')"/>
+        <% }) %>
+      </div>
+      <% } %>
+    </div>
+
+    <!-- Info -->
+    <div class="bike-detail__info">
+      <div class="bike-detail__badges">
+        <span class="badge badge--type"><%= bike.type %></span>
+        <% if (bike.availability) { %>
+          <span class="badge badge--available"><i class="fas fa-check-circle"></i> Available</span>
+        <% } else { %>
+          <span class="badge badge--unavailable"><i class="fas fa-times-circle"></i> Not Available</span>
+        <% } %>
+      </div>
+      <h1 class="bike-detail__name"><%= bike.name %></h1>
+      <p class="bike-detail__brand"><%= bike.brand %></p>
+      <div class="bike-detail__rating">
+        <% for(let i=1;i<=5;i++) { %><i class="fas fa-star <%= i <= Math.round(bike.avgRating) ? 'text--accent' : 'text--muted' %>"></i><% } %>
+        <strong><%= bike.avgRating %></strong> · <%= bike.reviews.length %> reviews · <%= bike.totalBookings %> bookings
+      </div>
+      <p class="bike-detail__location"><i class="fas fa-map-marker-alt"></i> <%= bike.location %>, <%= bike.city %></p>
+      <p class="bike-detail__desc"><%= bike.description %></p>
+
+      <!-- Pricing -->
+      <div class="pricing-card">
+        <div class="pricing-option">
+          <span>Hourly Rate</span><strong>₹<%= bike.pricePerHour %>/hr</strong>
+        </div>
+        <div class="pricing-option">
+          <span>Daily Rate</span><strong>₹<%= bike.pricePerDay %>/day</strong>
+        </div>
+      </div>
+
+      <!-- Quick availability check -->
+      <div class="avail-check">
+        <h4><i class="fas fa-calendar-check"></i> Check Availability</h4>
+        <div class="avail-check__row">
+          <input type="datetime-local" id="checkStart" class="input"/><span>to</span>
+          <input type="datetime-local" id="checkEnd" class="input"/>
+          <button onclick="checkAvailability('<%= bike._id %>')" class="btn btn--outline btn--sm">Check</button>
+        </div>
+        <div id="availResult" class="avail-result"></div>
+      </div>
+
+      <% if (bike.availability) { %>
+        <a href="/booking/new/<%= bike._id %>" class="btn btn--primary btn--lg btn--full"><i class="fas fa-calendar-alt"></i> Book This Bike</a>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Specs -->
+  <% if (bike.specs && Object.values(bike.specs).some(v=>v)) { %>
+  <div class="specs-card">
+    <h3>Specifications</h3>
+    <div class="specs-grid">
+      <% if (bike.specs.gears)     { %><div class="spec-item"><i class="fas fa-cogs"></i><span>Gears</span><strong><%= bike.specs.gears %></strong></div><% } %>
+      <% if (bike.specs.frameSize) { %><div class="spec-item"><i class="fas fa-ruler"></i><span>Frame Size</span><strong><%= bike.specs.frameSize %></strong></div><% } %>
+      <% if (bike.specs.wheelSize) { %><div class="spec-item"><i class="fas fa-circle"></i><span>Wheel Size</span><strong><%= bike.specs.wheelSize %></strong></div><% } %>
+      <% if (bike.specs.weight)    { %><div class="spec-item"><i class="fas fa-weight"></i><span>Weight</span><strong><%= bike.specs.weight %></strong></div><% } %>
+      <% if (bike.specs.color)     { %><div class="spec-item"><i class="fas fa-palette"></i><span>Color</span><strong><%= bike.specs.color %></strong></div><% } %>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- Reviews -->
+  <div class="reviews-section">
+    <h3>Customer Reviews (<%= bike.reviews.length %>)</h3>
+    <% if (bike.reviews.length === 0) { %>
+      <p class="text--muted">No reviews yet. Be the first!</p>
+    <% } %>
+    <div class="reviews-list">
+      <% bike.reviews.slice().reverse().forEach(r => { %>
+      <div class="review">
+        <div class="review__header">
+          <img src="/images/default-avatar.png" class="review__avatar" alt=""/>
+          <div>
+            <strong><%= r.name %></strong>
+            <div>
+              <% for(let i=1;i<=5;i++) { %><i class="fas fa-star <%= i <= r.rating ? 'text--accent' : 'text--muted' %>"></i><% } %>
+            </div>
+          </div>
+          <span class="review__date"><%= new Date(r.date).toLocaleDateString() %></span>
+        </div>
+        <p><%= r.comment %></p>
+      </div>
+      <% }) %>
+    </div>
+
+    <!-- Write review -->
+    <% if (user) { %>
+    <div class="review-form">
+      <h4>Write a Review</h4>
+      <form action="/bikes/<%= bike._id %>/review" method="POST">
+        <div class="star-rating" id="starRating">
+          <% for(let i=5;i>=1;i--) { %>
+            <input type="radio" name="rating" id="s<%= i %>" value="<%= i %>" <%= i===5?'required':'' %>/>
+            <label for="s<%= i %>"><i class="fas fa-star"></i></label>
+          <% } %>
+        </div>
+        <textarea name="comment" placeholder="Share your experience…" required class="textarea"></textarea>
+        <button type="submit" class="btn btn--primary">Submit Review</button>
+      </form>
+    </div>
+    <% } else { %>
+      <p><a href="/auth/login">Login</a> to leave a review.</p>
+    <% } %>
+  </div>
+</div>
+
+<script>
+async function checkAvailability(bikeId) {
+  const start = document.getElementById('checkStart').value;
+  const end   = document.getElementById('checkEnd').value;
+  const res   = document.getElementById('availResult');
+  if (!start || !end) { res.innerHTML='<span class="avail--warn">Please select both dates.</span>'; return; }
+  const r = await fetch(`/api/availability/${bikeId}?start=${start}&end=${end}`);
+  const d = await r.json();
+  res.innerHTML = d.available
+    ? '<span class="avail--ok"><i class="fas fa-check-circle"></i> Available for selected dates!</span>'
+    : '<span class="avail--no"><i class="fas fa-times-circle"></i> Not available for selected dates.</span>';
+}
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,46 @@
+<%- include('partials/header') %>
+
+<div class="page-header">
+  <div class="container">
+    <h1>Frequently Asked Questions</h1>
+    <p>Everything you need to know about renting with RideEasy</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container container--narrow">
+    <div class="faq-list">
+
+      <% const faqs = [
+        { q: 'How do I book a bike?', a: 'Browse bikes on our platform, select your preferred bike, choose dates and rental type (hourly/daily), and proceed to secure payment via Razorpay or Cash on Delivery.' },
+        { q: 'What documents do I need to rent a bike?', a: 'You need a valid government-issued photo ID (Aadhaar, PAN, or Passport) and a valid driving license for motorized bikes. For non-motorized bikes, only photo ID is required.' },
+        { q: 'Can I cancel my booking?', a: 'Yes! You can cancel pending or confirmed bookings from your dashboard. Cancellations made 24 hours before the start time receive a full refund. Last-minute cancellations may incur a charge.' },
+        { q: 'What if the bike breaks down during my rental?', a: 'Contact our 24/7 support immediately. We will arrange a replacement bike or assist with repairs at no extra cost for mechanical failures that are not due to user negligence.' },
+        { q: 'Are the bikes insured?', a: 'Yes, all bikes come with basic third-party insurance. We recommend customers take additional personal accident insurance for peace of mind.' },
+        { q: 'How is payment processed?', a: 'We use Razorpay for secure online payments, supporting all major debit/credit cards, UPI, and net banking. Cash on Delivery (pay at pickup) is also available for select locations.' },
+        { q: 'Can I extend my rental period?', a: 'Yes! Contact us at least 2 hours before your booking end time. Extensions are subject to availability and will be charged at the standard rate.' },
+        { q: 'What happens if I return the bike late?', a: 'Late returns are charged at 1.5× the standard hourly rate for the extra hours. Please inform us in advance if you think you will be late.' },
+        { q: 'Are helmets provided?', a: 'Helmets are available on request at most pickup locations. We strongly recommend wearing a helmet for your safety.' },
+        { q: 'How do I leave a review?', a: 'After completing a booking, visit the bike\'s detail page and scroll to the reviews section to leave your rating and feedback.' }
+      ] %>
+
+      <% faqs.forEach((faq, i) => { %>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-item__q">
+          <span><%= i+1 %>. <%= faq.q %></span>
+          <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="faq-item__a"><p><%= faq.a %></p></div>
+      </div>
+      <% }) %>
+    </div>
+
+    <div class="faq-cta">
+      <h3>Still have questions?</h3>
+      <p>Our support team is available 24/7</p>
+      <a href="/contact" class="btn btn--primary"><i class="fas fa-headset"></i> Contact Us</a>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>
